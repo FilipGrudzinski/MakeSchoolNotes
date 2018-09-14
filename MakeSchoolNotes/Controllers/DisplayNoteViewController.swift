@@ -10,6 +10,21 @@ import UIKit
 
 class DisplayNoteViewController: UIViewController {
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let identifier = segue.identifier else { return }
+        
+        switch identifier {
+        case "save":
+            print("save bar button item tapped")
+            
+        case "cancel":
+            print("cancel bar button item tapped")
+            
+        default:
+            print("unexpected segue identifier")
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     }
