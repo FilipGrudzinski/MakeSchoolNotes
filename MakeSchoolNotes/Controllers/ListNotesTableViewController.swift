@@ -12,18 +12,32 @@ class ListNotesTableViewController: UITableViewController {
     
     @IBAction func unwindWithSegue(_ segue: UIStoryboardSegue) {
         
+        notes = CoreDataHelper.retrieveNotes()
+        
+    }
+    
+    var notes = [Note]() {
+        
+        didSet {
+            
+            tableView.reloadData()
+            
+        }
+        
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     
-        return 10
+        return notes.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "listNotesTableViewCell", for: indexPath) as! ListNotesTableViewCell
-        cell.noteTitleLabel.text = "Note's title"
-        cell.noteModificationTimeLabel.text = "note's modification time"
+        
+        let note = notes[indexPath.row]
+        cell.noteTitleLabel.text = note.title
+        cell.noteModificationTimeLabel.text =  note.modificationTime?.convertToString() ?? "unknown"
         
         return cell
     }
@@ -36,7 +50,10 @@ class ListNotesTableViewController: UITableViewController {
             
         case "displayNote":
             
-            print("note cell tapped")
+            guard let indexPath = tableView.indexPathForSelectedRow else { return }
+            let note = notes[indexPath.row]
+            let destination = segue.destination as! DisplayNoteViewController
+            destination.note = note
             
         case "addNote" :
             
@@ -49,8 +66,25 @@ class ListNotesTableViewController: UITableViewController {
         
     }
     
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        
+        if editingStyle == .delete {
+            
+            let noteToDelete = notes[indexPath.row]
+            CoreDataHelper.delete(note: noteToDelete)
+            
+            notes = CoreDataHelper.retrieveNotes()
+            
+        }
+        
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        notes = CoreDataHelper.retrieveNotes()
+        
     }
     
 }

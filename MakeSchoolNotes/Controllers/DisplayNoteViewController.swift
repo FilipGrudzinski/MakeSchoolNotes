@@ -2,19 +2,44 @@
 //  DisplayNoteViewController.swift
 //  MakeSchoolNotes
 //
-//  Created by Chris Orcutt on 1/10/16.
+//  Created by Chris Orcutt on 1/10/16. Modifed by FG
 //  Copyright © 2016 MakeSchool. All rights reserved.
 //
 
 import UIKit
 
+
 class DisplayNoteViewController: UIViewController {
     
+    
+    @IBOutlet weak var titleTextField: UITextField!
+    @IBOutlet weak var contentTextView: UITextView!
+    
+    var note: Note?
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let identifier = segue.identifier else { return }
+        guard let identifier = segue.identifier//,
+        //let destination = segue.destination as? ListNotesTableViewController
+        else { return }
         
         switch identifier {
-        case "save":
+            
+        case "save" where note != nil:
+            
+            note?.title = titleTextField.text ?? ""
+            note?.content = contentTextView.text ?? ""
+            note?.modificationTime = Date()
+            CoreDataHelper.saveNote()
+            
+        case "save" where note == nil:
+            
+            let note = CoreDataHelper.newNote()
+            note.title = titleTextField.text ?? ""
+            note.content = contentTextView.text ?? ""
+            note.modificationTime = Date()
+            
+            CoreDataHelper.saveNote()
+            
             print("save bar button item tapped")
             
         case "cancel":
@@ -27,6 +52,24 @@ class DisplayNoteViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if let note = note {
+            
+            titleTextField.text = note.title
+            contentTextView.text = note.content
+            
+        } else {
+            
+            titleTextField.text = ""
+            contentTextView.text = ""
+            
+        }
     }
     
 }
